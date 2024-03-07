@@ -15,4 +15,9 @@ const formatarMoeda = (valor) => {
     }).format(valor)
 }
 
-export { converterMaiusculas, converterMinusculas, formatarMoeda };
+// ...rest para obter uma lista de parâmetros independente de quantidade
+function classificar(...textos){
+    return textos.sort();
+}
+
+export { converterMaiusculas, converterMinusculas, formatarMoeda, classificar };
