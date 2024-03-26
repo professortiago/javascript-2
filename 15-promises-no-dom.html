@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API e HTML</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Verdana, Arial, sans-serif; }
+        #usuarios {
+            width: 60%;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        section {
+            width: 49%;
+            padding: 4px;
+            background-color: aliceblue;
+            border: solid 1px;
+            margin-bottom: 2%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Carregando dados de API e exibindo no HTML</h1>
+    <hr>
+    <button id="carregar">Carregar dados</button>
+    <hr>
+    <div id="usuarios"></div>
+
+    <script>
+        'use strict';
+
+        const botao = document.querySelector("#carregar");
+        const divUsuarios = document.querySelector("#usuarios");
+
+        botao.addEventListener("click", async function(){
+            try {
+                const resposta = await fetch(`https://jsonplaceholder.typicode.com/users`);
+                
+                if(!resposta.ok){
+                    throw new Error(resposta.statusText);
+                }
+
+                const dados = await resposta.json();
+
+                if (divUsuarios.innerHTML === "") {
+                    dados.map( ({name, email, website}) => {
+                        let secao = document.createElement("section");
+                        secao.innerHTML = `<h2>${name}</h2><p>${email}</p><p>${website}</p>`;
+                        divUsuarios.appendChild(secao);
+                    })
+                }
+
+            } catch (error) {
+                console.error(error.message);
+            }
+        });
+    </script>
+</body>
+</html>
