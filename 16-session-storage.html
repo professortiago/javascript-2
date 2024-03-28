@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armazenamento Local - Session Storage</title>
+    <style>
+        .noturno {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<h1>Session Storage</h1>
+<hr>
+<button id="noturno">Ativar</button>
+
+<script>
+'use strict';
+
+const pagina = document.querySelector("body");
+const botao = document.querySelector("#noturno");
+
+/* Verificando se o modo noturno está armazenado no sessionStorage */
+const modoNoturnoSalvo = sessionStorage.getItem("modoNoturno"); // "true" ou "false"
+console.log(modoNoturnoSalvo);
+
+/* Se o modoNoturnoSalvo estiver ativado ("true"), aplicamos a classe
+noturno à página e atualizamos o texto do botão */
+if(modoNoturnoSalvo == "true"){
+    pagina.classList.add("noturno");
+    botao.textContent = "Desativar";
+}
+
+botao.addEventListener("click", function(){
+    pagina.classList.toggle("noturno");
+    pagina.style.transition = "500ms";
+    botao.textContent = pagina.className === "noturno" ? "Desativar" : "Ativar";
+
+    /* Atualizar/Criar o sessionStorage com o modo atual */
+    const modoAtual = pagina.classList.contains("noturno");
+    sessionStorage.setItem("modoNoturno", modoAtual);
+});
+
+
+</script>
+
+</body>
+</html>

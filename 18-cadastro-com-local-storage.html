@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulando cadastro com armazenamento em localStorage</title>
+<style>
+	* { box-sizing: border-box;	}
+
+	body {
+		font-family: "Segoe UI", Verdana, sans-serif;
+		background-color: #59C8F0;
+	}
+
+	.container {
+		width: 80%;
+		max-width: 1000px;
+		margin: auto;
+		background-color: white;
+		padding: 8px;
+		border-radius: 4px;
+	}
+
+	td,	th { padding: 8px; }
+
+	.aprovado { background-color: lightgreen; }
+	.reprovado { background-color: lightcoral; }
+</style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Simulando cadastro com armazenamento em localStorage</h1>
+        <hr>
+
+        <form action="" method="post" id="cadastro" autocomplete="off">
+            <p>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" required>
+            </p>
+            <p>
+                <label for="nota1">Nota 1:</label>
+                <input type="number" id="nota1" min="0" max="10" step="0.1" required>
+                <label for="nota2">Nota 2:</label>
+                <input type="number" id="nota2" min="0" max="10" step="0.1" required>
+            </p>
+            <button id="avaliar">Avaliar</button>
+        </form>
+
+        <hr>
+
+        <div id="relacao-de-alunos" hidden>
+            <button id="limpar">Limpar dados</button>
+            <hr>
+            <table id="resultados">
+                <caption>Resultados</caption>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Média</th>
+                        <th>Situação</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela"></tbody>
+            </table>
+            <hr>
+        </div>
+
+    </div>
+	
+<script>
+'use strict';
+
+const formulario = document.querySelector("#cadastro");
+const campoNome = formulario.querySelector("#nome");
+const campoNota1 = formulario.querySelector("#nota1");
+const campoNota2 = formulario.querySelector("#nota2");
+const corpoTabela = document.querySelector("#corpo-tabela");
+const botaoLimpar = document.querySelector("#limpar");
+const divRelacaoDeAlunos = document.querySelector("#relacao-de-alunos");
+
+formulario.addEventListener("submit", cadastrar);
+document.addEventListener("DOMContentLoaded", carregarDados);
+botaoLimpar.addEventListener("click", limparDados);
+
+function cadastrar(event){
+    event.preventDefault();
+    const nome = campoNome.value;
+    const nota1 = Number(campoNota1.value);
+    const nota2 = Number(campoNota2.value);
+
+    const media = calcularMedia(nota1, nota2);
+    const situacao = verificarSituacao(media);
+    const linha = criarLinha(nome, media, situacao);
+    corpoTabela.appendChild(linha);
+    salvarDados(nome, media, situacao);
+    limparCampos();
+}
+
+function limparDados(){
+    localStorage.removeItem("alunos");
+    corpoTabela.innerHTML = "";
+
+    /* Ao limpar os dados, não é mais necessário exibir a div.
+    Por isso, ativamos o hidden novamente. */
+    divRelacaoDeAlunos.setAttribute("hidden", true);
+}
+
+function limparCampos(){
+    formulario.reset();
+    campoNome.focus();
+}
+
+function carregarDados(){
+    const alunos = JSON.parse(localStorage.getItem("alunos")) || [];
+
+    /* Removemos o hidden da div desde que tenha pelo menos um aluno na lista de alunos */
+    if(alunos.length > 0){
+        divRelacaoDeAlunos.removeAttribute("hidden");
+    }
+
+    for(const aluno of alunos){
+        const { nome, media, situacao } = aluno;
+        const linha = criarLinha(nome, media, situacao);
+        corpoTabela.appendChild(linha);
+    }
+}
+
+function salvarDados(nome, media, situacao){
+    // Montando um objeto com estrutura baseada em nome, media e situacao
+    const aluno = { nome, media, situacao };
+    
+    /* Verificando/Carregando de dados prévios (strings) do localStorage 
+    e os convertendo para um objeto JS (JSON.parse). */
+    const alunos = JSON.parse(localStorage.getItem("alunos")) || [];
+
+    // Colocando o aluno dentro da lista de alunos
+    alunos.push(aluno);
+
+    /* Salvar/atualizar a nova lista de alunos no localStorage */
+    localStorage.setItem("alunos", JSON.stringify(alunos));
+
+    /* Removemos o atributo hidden fazendo com que a div volte a aparecer */
+    divRelacaoDeAlunos.removeAttribute("hidden");
+}
+
+function calcularMedia(valor1, valor2){
+    return (valor1 + valor2) / 2;
+}
+
+function verificarSituacao(valor){
+    return valor >= 7 ? "aprovado" : "reprovado";
+}
+
+function criarLinha(valorNome, valorMedia, valorSituacao){
+    const linhaCriada = document.createElement("tr");
+    linhaCriada.innerHTML = `
+            <td>${valorNome}</td>
+            <td>${valorMedia.toFixed(2)}</td>
+            <td>${valorSituacao}</td>
+    `
+    linhaCriada.classList.add(valorSituacao);
+    return linhaCriada;
+}
+</script>
+	
+</body>
+
+</html>
